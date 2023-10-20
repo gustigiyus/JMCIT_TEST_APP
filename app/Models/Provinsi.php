@@ -11,6 +11,6 @@ class Provinsi extends Model
 
     protected $table = 'provinsis';
     protected $fillable = [
-        'name'
+        'nama'
     ];
 }
