@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('nama', 100);
             $table->string('nik', 25);
             $table->date('tgl_lahir');
-            $table->enum('jns_kelamin();', ['Laki-laki', 'Perempuan']);
+            $table->enum('jns_kelamin', ['Laki-laki', 'Perempuan']);
             $table->text('alamat');
             $table->foreignId('provinsi_id')->constrained()->onUpdate('cascade')->onDelete('restrict');
             $table->foreignId('kabupaten_id')->constrained()->onUpdate('cascade')->onDelete('restrict');
