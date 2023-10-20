@@ -9,7 +9,7 @@
             <h1 class="w-full text-center font-black text-3xl bg-slate-400 py-3">Form Edit Penduduk</h1>
 
             <div class="px-6 py-6 w-full ">
-                <form action="{{ route('penduduk_store') }}" method="POST" class="flex flex-col gap-5">
+                <form action="/penduduk/{{ $penduduk->id }}" method="POST" class="flex flex-col gap-5">
                     {{-- CSRF --}}
                     @csrf
                     <input type="hidden" id="csrf_token" name="csrf_token" value="{{ csrf_token() }}">
@@ -126,10 +126,6 @@
             </div>
         @endif
     </div>
-
-
-
-
 
     <script>
         $(document).ready(function() {

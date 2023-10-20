@@ -8,7 +8,7 @@
             @include('layout.component.pesan')
         </div>
 
-        <h1 class="w-full text-center font-black text-3xl">Data Penduduk</h1>
+        <h1 class="w-full text-center font-black text-4xl mb-7">Data Penduduk</h1>
 
         <div class="flex flex-row justify-between items-center">
             <a href="{{ route('penduduk_tambah') }}"
@@ -16,51 +16,53 @@
                 type="button">
                 Tambah Penduduk
             </a>
-
-
-
             <form action="/penduduk/filter" method="post" class="flex flex-row gap-5 items-end">
                 @csrf
                 <div class="flex flex-col">
                     <label for="provinsi">Pilih Provinsi:</label>
-                    <select name="provinsi_id" id="provinsi">
+                    <select name="provinsi_id" id="provinsi" class="provinsi_id">
                         <option value="">Semua Provinsi</option>
                         @foreach ($provinsi as $prov)
-                            <option value="{{ $prov->id }}">{{ $prov->nama }}</option>
+                            <option value="{{ $prov->id }}" @if ($prov->id == $search_prov) selected @endif>
+                                {{ $prov->nama }}</option>
                         @endforeach
                     </select>
                 </div>
 
                 <div class="flex flex-col">
                     <label for="kabupaten">Pilih Kabupaten:</label>
-                    <select name="kabupaten_id" id="kabupaten">
+                    <select name="kabupaten_id" id="kabupaten" class="kabupaten_id cursor-not-allowed bg-gray-300" disabled>
                         <option value="">Semua Kabupaten</option>
                         @foreach ($kabupaten as $kab)
-                            <option value="{{ $kab->id }}">{{ $kab->nama }}</option>
+                            <option value="{{ $kab->id }}" @if ($kab->id == $search_kab) selected @endif>
+                                {{ $kab->nama }}</option>
                         @endforeach
                     </select>
                 </div>
 
                 <div class="flex flex-col">
                     <label for="kabupaten">Search:</label>
-                    <input type="text" name="search_params" placeholder="Cari">
+                    <input type="text" name="search_params" placeholder="Pencarian Nama/Nik"
+                        value="<?= $searchParams ? $searchParams : '' ?>">
                 </div>
 
                 <button type="submit"
-                    class="w-fit hover:cursor-pointer text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
-                    type="button">
-                    Cari
+                    class="w-fit hover:cursor-pointer text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                    Cari Data
                 </button>
+
+                <a href="{{ route('penduduk') }}"
+                    class="w-fit hover:cursor-pointer text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                    type="button">
+                    Hapus Filter
+                </a>
             </form>
-
-
         </div>
-
 
         <input type="hidden" id="csrf_token" name="csrf_token" value="{{ csrf_token() }}">
 
         <div class="overflow-x-auto shadow w-full">
-            <div class="relative overflow-x-auto shadow-md sm:rounded-lg px-6 py-6">
+            <div class="relative overflow-x-auto shadow-xl sm:rounded-lg px-6 py-6">
 
                 {{-- TABLE --}}
                 <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -124,7 +126,7 @@
                                     {{ $dt->created_at }}
                                 </td>
                                 <td class="px-6 py-4 flex items-center justify-center">
-                                    <a href="penduduk/{{ $dt->id }}"
+                                    <a href="{{ route('penduduk_edit', ['id' => $dt->id]) }}"
                                         class="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-xs px-5 py-2.5 text-center mr-2 mb-2">
                                         Edit
                                     </a>
@@ -171,6 +173,7 @@
     <script>
         $(document).ready(function() {
             let csrf_token = $('#csrf_token').val();
+            var baseUrl = window.location.origin;
 
             $('body').on('click', '.tombol-del', function(e) {
                 e.preventDefault();
@@ -195,7 +198,7 @@
                     if (result.isConfirmed) {
                         $.ajax({
                             type: "DELETE",
-                            url: "penduduk/" + id,
+                            url: baseUrl + '/penduduk/' + id,
                             headers: {
                                 'X-CSRF-TOKEN': csrf_token,
                             },
@@ -211,13 +214,98 @@
                                     showConfirmButton: false,
                                     timer: 2000,
                                 }).then(() => {
-                                    location.reload()
+                                    window.location.href = '/penduduk';
                                 })
-                            }
+                            },
                         });
                     }
                 })
             }
+
+            // ON EXIST
+            let id_exist_prov = $('.provinsi_id').val()
+            let id_exist_kab = $('.kabupaten_id').val()
+
+            if (id_exist_prov) {
+                $('.kabupaten_id').removeClass('cursor-not-allowed bg-gray-300');
+                $('.kabupaten_id').attr('disabled', false);
+
+                $.ajax({
+                    type: "get",
+                    url: baseUrl + '/penduduk/getKabupaten/' + id_exist_prov,
+                    headers: {
+                        'X-CSRF-TOKEN': csrf_token,
+                    },
+                    async: true,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        let dataKabupaten = response.data;
+                        console.log(dataKabupaten);
+                        setTimeout(function() {
+                            $('.kabupaten_id').empty();
+                            $('.kabupaten_id').append(new Option('Pilih Kabupaten',
+                                ''));
+                            $.each(dataKabupaten, function(index, kabupaten) {
+                                $('.kabupaten_id').append(new Option(
+                                    kabupaten
+                                    .nama,
+                                    kabupaten.id));
+                            });
+                            $('.kabupaten_id').val(id_exist_kab);
+                        }, 300);
+                    }
+                });
+            } else {
+                $('.kabupaten_id').addClass('cursor-not-allowed bg-gray-300');
+                $('.kabupaten_id').attr('disabled', true);
+                $('.kabupaten_id').val('');
+            }
+
+            // ON CAHNGE
+            $('.provinsi_id').change(function(e) {
+                e.preventDefault();
+                let id = $('.provinsi_id').val()
+
+                if (id) {
+                    $('.kabupaten_id').removeClass('cursor-not-allowed bg-gray-300');
+                    $('.kabupaten_id').attr('disabled', false);
+
+                    $.ajax({
+                        type: "get",
+                        url: baseUrl + '/penduduk/getKabupaten/' + id,
+                        headers: {
+                            'X-CSRF-TOKEN': csrf_token,
+                        },
+                        async: true,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: function(response) {
+                            let dataKabupaten = response.data;
+                            console.log(dataKabupaten);
+                            setTimeout(function() {
+                                $('.kabupaten_id').empty();
+                                $('.kabupaten_id').append(new Option('Pilih Kabupaten',
+                                    ''));
+                                $.each(dataKabupaten, function(index, kabupaten) {
+                                    $('.kabupaten_id').append(new Option(
+                                        kabupaten
+                                        .nama,
+                                        kabupaten.id));
+                                });
+                            }, 300);
+                        }
+                    });
+                } else {
+                    $('.kabupaten_id').addClass('cursor-not-allowed bg-gray-300');
+                    $('.kabupaten_id').attr('disabled', true);
+                    $('.kabupaten_id').val('');
+                }
+
+            });
+
 
         });
     </script>

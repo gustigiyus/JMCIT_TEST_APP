@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Kabupaten extends Model
 {
@@ -20,5 +21,10 @@ class Kabupaten extends Model
     public function provinsi(): BelongsTo
     {
         return $this->belongsTo(Provinsi::class);
+    }
+
+    public function penduduk(): HasMany
+    {
+        return $this->hasMany(Penduduk::class);
     }
 }

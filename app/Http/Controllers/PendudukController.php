@@ -24,7 +24,10 @@ class PendudukController extends Controller
             'data' => $penduduk,
             'provinsi' => $provinsi,
             'kabupaten' => $kabupaten,
-            'no' => $no
+            'no' => $no,
+            'search_kab' => '',
+            'search_prov' => '',
+            'searchParams' => '',
         ];
         return view('penduduk.index', $data);
     }
@@ -194,10 +197,11 @@ class PendudukController extends Controller
             'data' => $penduduk,
             'provinsi' => $provinsi,
             'kabupaten' => $kabupaten,
-            'no' => $no
+            'no' => $no,
+            'search_kab' => $kabupatenId,
+            'search_prov' => $provinsiId,
+            'searchParams' => $searchParams,
         ];
-
-
 
         return view('penduduk.index', $data);
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Kabupaten;
+use App\Models\Penduduk;
 use App\Models\Provinsi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -33,7 +34,7 @@ class KabupatenController extends Controller
             'nama' => 'required|max:100',
         ], [
             'provinsi_id.required' => 'Provinsi wajib diisi',
-            'nama.required' => 'Nama Provinsi wajib diisi',
+            'nama.required' => 'Nama Kabupaten wajib diisi',
         ]);
 
         if ($validasi->fails()) {
@@ -63,7 +64,7 @@ class KabupatenController extends Controller
             'nama' => 'required|max:100',
         ], [
             'provinsi_id.required' => 'Provinsi wajib diisi',
-            'nama.required' => 'Nama Provinsi wajib diisi',
+            'nama.required' => 'Nama Kabupaten wajib diisi',
         ]);
 
         if ($validasi->fails()) {
@@ -89,7 +90,13 @@ class KabupatenController extends Controller
         if (!$kabupaten) {
             return response()->json(['message' => 'Kabupaten tidak ditemukan'], 404);
         }
-        $kabupaten->delete();
-        return response()->json(['success' => 'Berhasil delete data'], 200);
+
+        $penduduk = Penduduk::where('kabupaten_id', $id)->get();
+        if ($penduduk->count() > 0) {
+            return response()->json(['error' => 'Data tidak dapat dihapus karena ada beberapa data penduduk yang terakit dengan kabupaten ini!'], 404);
+        } else {
+            $kabupaten->delete();
+            return response()->json(['success' => 'Berhasil delete data'], 200);
+        }
     }
 }

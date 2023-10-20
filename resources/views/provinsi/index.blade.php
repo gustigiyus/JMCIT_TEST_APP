@@ -279,6 +279,21 @@
                                     }).then(() => {
                                         location.reload()
                                     })
+                                },
+                                error: function(xhr, status, error) {
+                                    let errorMessage = '';
+
+                                    if (xhr) {
+                                        errorMessage = xhr.responseJSON.error;
+                                    } else {
+                                        errorMessage = 'Tidak dapat menghapus data'
+                                    }
+
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Tidak dapat menghapus data',
+                                        text: `${errorMessage}`,
+                                    });
                                 }
                             });
 

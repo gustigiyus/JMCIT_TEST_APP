@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Penduduk;
 use App\Models\Provinsi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -83,7 +84,13 @@ class ProvinsiController extends Controller
         if (!$provinsi) {
             return response()->json(['message' => 'Provinsi tidak ditemukan'], 404);
         }
-        $provinsi->delete();
-        return response()->json(['success' => 'Berhasil delete data'], 200);
+
+        $penduduk = Penduduk::where('provinsi_id', $id)->get();
+        if ($penduduk->count() > 0) {
+            return response()->json(['error' => 'Data tidak dapat dihapus karena ada beberapa data penduduk yang terakit dengan provinsi ini!'], 404);
+        } else {
+            $provinsi->delete();
+            return response()->json(['success' => 'Berhasil delete data'], 200);
+        }
     }
 }
